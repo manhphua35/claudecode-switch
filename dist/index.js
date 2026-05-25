@@ -29,6 +29,8 @@ const selectModel    = $('#selectModel');
 const selectHaiku    = $('#selectHaiku');
 const selectOpus     = $('#selectOpus');
 const selectSonnet   = $('#selectSonnet');
+const modelAliasInput = $('#modelAlias');
+const modelAliasList  = $('#modelAliasList');
 const btnCancel      = $('#btnCancel');
 const btnSave        = $('#btnSave');
 const btnSaveText    = $('#btnSaveText');
@@ -77,6 +79,16 @@ function setStatus(stateName, text) {
   statusText.textContent = text;
 }
 
+// ── Model alias datalist ──────────────────────────────
+const MODEL_ALIAS_PRESETS = ['opus', 'sonnet', 'haiku'];
+
+function refreshModelAliasOptions(modelIds = []) {
+  const merged = [...new Set([...MODEL_ALIAS_PRESETS, ...modelIds])];
+  modelAliasList.innerHTML = merged
+    .map((id) => `<option value="${escapeHtml(id)}"></option>`)
+    .join('');
+}
+
 // ── Model selects ─────────────────────────────────────
 function populateSelects(models, presetValues = {}) {
   for (const [key, sel] of Object.entries(MODEL_KEY_BY_SELECT)) {
@@ -91,6 +103,7 @@ function populateSelects(models, presetValues = {}) {
     const preset = presetValues[key];
     if (preset && models.some((m) => m.id === preset)) sel.value = preset;
   }
+  refreshModelAliasOptions(models.map((m) => m.id));
 }
 
 function resetSelects() {
@@ -126,7 +139,9 @@ function openForm(mode, provider = null) {
     providerName.value = '';
     baseUrlInput.value = '';
     authTokenInput.value = '';
+    modelAliasInput.value = '';
     resetSelects();
+    refreshModelAliasOptions();
     setStatus('idle', 'Chưa fetch models');
   } else {
     formTitle.textContent =
@@ -134,6 +149,7 @@ function openForm(mode, provider = null) {
     providerName.value = mode === 'duplicate' ? `${provider.name} (copy)` : provider.name;
     baseUrlInput.value = provider.baseUrl;
     authTokenInput.value = provider.authToken || '';
+    modelAliasInput.value = provider.model || '';
 
     const savedIds = Object.values(provider.models || {}).filter(Boolean);
     const uniqueIds = [...new Set(savedIds)];
@@ -143,6 +159,7 @@ function openForm(mode, provider = null) {
       setStatus('idle', 'Đã load models đã lưu — fetch lại để xem full list');
     } else {
       resetSelects();
+      refreshModelAliasOptions();
       setStatus('idle', 'Chưa fetch models');
     }
   }
@@ -271,6 +288,7 @@ async function saveProvider() {
     name,
     baseUrl,
     authToken,
+    model: modelAliasInput.value.trim() || null,
     models: {
       ANTHROPIC_MODEL: selectModel.value,
       ANTHROPIC_DEFAULT_HAIKU_MODEL: selectHaiku.value,
@@ -370,6 +388,8 @@ async function loadCurrentConfig() {
         : val || '(trống)';
       html += `<span class="key">"${key}"</span>: <span class="value">"${escapeHtml(maskedVal)}"</span>\n`;
     }
+    const topModel = data.model || '';
+    html += `<span class="key">"model"</span>: <span class="value">"${escapeHtml(topModel || '(trống)')}"</span>`;
     configPreview.innerHTML = html.trim();
   } catch {
     configPreview.textContent = '(không thể đọc settings.json)';

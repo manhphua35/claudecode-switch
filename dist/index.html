@@ -82,6 +82,25 @@
 
       <div class="divider"></div>
 
+      <div class="form-group">
+        <label class="form-label" for="modelAlias">
+          Model alias <span style="opacity:.6;font-weight:400">(settings.json → <code>"model"</code>)</span>
+        </label>
+        <input
+          type="text"
+          id="modelAlias"
+          class="form-input"
+          list="modelAliasList"
+          placeholder="opus / sonnet / haiku, hoặc model ID cụ thể"
+          autocomplete="off"
+        />
+        <datalist id="modelAliasList">
+          <option value="opus"></option>
+          <option value="sonnet"></option>
+          <option value="haiku"></option>
+        </datalist>
+      </div>
+
       <div class="model-grid">
         <div class="model-slot">
           <div class="model-slot__label">

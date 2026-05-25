@@ -32,6 +32,8 @@ pub struct Provider {
     pub base_url: String,
     #[serde(rename = "authToken")]
     pub auth_token: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
     #[serde(default)]
     pub models: std::collections::BTreeMap<String, String>,
     #[serde(rename = "createdAt")]
@@ -53,6 +55,8 @@ pub struct ProviderInput {
     pub base_url: String,
     #[serde(rename = "authToken", default)]
     pub auth_token: String,
+    #[serde(default)]
+    pub model: Option<String>,
     #[serde(default)]
     pub models: Option<std::collections::BTreeMap<String, String>>,
 }
@@ -84,6 +88,8 @@ pub struct DeleteResponse {
 #[derive(Debug, Serialize)]
 pub struct SettingsResponse {
     pub env: std::collections::BTreeMap<String, String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
 }
 
 // ── Paths state ───────────────────────────────────────
@@ -172,6 +178,7 @@ struct NormalizedInput {
     name: String,
     base_url: String,
     auth_token: String,
+    model: Option<String>,
     models: std::collections::BTreeMap<String, String>,
 }
 
@@ -182,6 +189,13 @@ fn normalize_provider_input(body: &ProviderInput) -> Option<NormalizedInput> {
     if name.is_empty() || base_url.is_empty() {
         return None;
     }
+
+    let model = body
+        .model
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_string());
 
     let mut models = std::collections::BTreeMap::new();
     if let Some(raw) = &body.models {
@@ -198,6 +212,7 @@ fn normalize_provider_input(body: &ProviderInput) -> Option<NormalizedInput> {
         name,
         base_url,
         auth_token,
+        model,
         models,
     })
 }
@@ -235,6 +250,15 @@ fn apply_provider_to_settings(
         }
     }
 
+    match &provider.model {
+        Some(val) if !val.is_empty() => {
+            settings.insert("model".to_string(), Value::String(val.clone()));
+        }
+        _ => {
+            settings.remove("model");
+        }
+    }
+
     write_settings(&paths.claude_dir, &paths.settings_path, &settings)
 }
 
@@ -258,6 +282,7 @@ fn create_provider(
         name: input.name,
         base_url: input.base_url,
         auth_token: input.auth_token,
+        model: input.model,
         models: input.models,
         created_at: chrono::Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true),
     };
@@ -287,6 +312,7 @@ fn update_provider(
         name: input.name,
         base_url: input.base_url,
         auth_token: input.auth_token,
+        model: input.model,
         models: input.models,
     };
     store.providers[idx] = updated.clone();
@@ -348,7 +374,11 @@ fn get_settings(state: State<'_, AppState>) -> Result<SettingsResponse, String> 
             }
         }
     }
-    Ok(SettingsResponse { env })
+    let model = settings
+        .get("model")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+    Ok(SettingsResponse { env, model })
 }
 
 #[tauri::command]

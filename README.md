@@ -16,6 +16,16 @@ Configure multiple providers (Anthropic-compatible endpoints such as your own pr
 
 The UI is a single window with the saved providers list on top and an editor form below. Active provider is highlighted; applying re-writes `settings.json` atomically.
 
+## Download (no build required)
+
+Pre-built installers are published on the [GitHub Releases page](https://github.com/manhphua35/claudecode-switch/releases). Grab the asset for your OS:
+
+- **Windows** — `*-setup.exe` (NSIS) or `*.msi`
+- **macOS** — `*.dmg` (universal binary, Intel + Apple Silicon)
+- **Linux** — `*.AppImage` or `*.deb`
+
+New releases are produced automatically by GitHub Actions whenever a `v*` tag is pushed (see [`.github/workflows/release.yml`](.github/workflows/release.yml)). If you only want to *use* the app, you can stop reading here — the rest of the README is for building from source.
+
 ## Requirements
 
 ### Windows
