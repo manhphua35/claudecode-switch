@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Code Provider Switcher</title>
+  <meta name="description" content="Manage AI provider settings for Claude Code — switch models, base URL, and auth tokens." />
+  <link rel="stylesheet" href="index.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+</head>
+<body>
+  <div class="app-container">
+
+    <header class="header fade-in">
+      <div class="header__icon">⚡</div>
+      <h1 class="header__title">Provider Switcher</h1>
+      <p class="header__subtitle">Quản lý cấu hình AI provider cho Claude Code</p>
+    </header>
+
+    <section class="card fade-in" style="animation-delay: 0.1s">
+      <div class="card__header">
+        <div class="card__title">
+          <span class="card__title-dot"></span>
+          Providers đã lưu
+        </div>
+        <button id="btnNew" class="btn btn--fetch" type="button">+ New Provider</button>
+      </div>
+
+      <div id="providerList" class="provider-list">
+        <div class="provider-empty">Đang tải...</div>
+      </div>
+    </section>
+
+    <section id="formCard" class="card fade-in form-card--hidden" style="animation-delay: 0.2s">
+      <div class="card__title">
+        <span class="card__title-dot"></span>
+        <span id="formTitle">New Provider</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="providerName">Tên hiển thị</label>
+        <input
+          type="text"
+          id="providerName"
+          class="form-input"
+          placeholder="Ví dụ: OpenRouter, Local proxy, …"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="baseUrl">Base URL</label>
+        <input
+          type="url"
+          id="baseUrl"
+          class="form-input"
+          placeholder="https://api.example.com"
+          autocomplete="url"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="authToken">Auth Token</label>
+        <div class="input-row">
+          <input
+            type="password"
+            id="authToken"
+            class="form-input"
+            placeholder="sk-..."
+            autocomplete="off"
+          />
+          <button id="btnFetch" class="btn btn--fetch" type="button">
+            <span id="btnFetchText">Fetch Models</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="statusBar" class="status-bar status-bar--idle">
+        <span class="status-dot"></span>
+        <span id="statusText">Chưa fetch models</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="model-grid">
+        <div class="model-slot">
+          <div class="model-slot__label">
+            <span class="model-slot__badge badge--default">DEFAULT</span>
+            ANTHROPIC_MODEL
+          </div>
+          <select id="selectModel" class="form-select" disabled>
+            <option value="">— Fetch models trước —</option>
+          </select>
+        </div>
+
+        <div class="model-slot">
+          <div class="model-slot__label">
+            <span class="model-slot__badge badge--haiku">HAIKU</span>
+            Haiku Model
+          </div>
+          <select id="selectHaiku" class="form-select" disabled>
+            <option value="">— Fetch models trước —</option>
+          </select>
+        </div>
+
+        <div class="model-slot">
+          <div class="model-slot__label">
+            <span class="model-slot__badge badge--opus">OPUS</span>
+            Opus Model
+          </div>
+          <select id="selectOpus" class="form-select" disabled>
+            <option value="">— Fetch models trước —</option>
+          </select>
+        </div>
+
+        <div class="model-slot">
+          <div class="model-slot__label">
+            <span class="model-slot__badge badge--sonnet">SONNET</span>
+            Sonnet Model
+          </div>
+          <select id="selectSonnet" class="form-select" disabled>
+            <option value="">— Fetch models trước —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="form-actions">
+        <button id="btnCancel" class="btn btn--ghost" type="button">Cancel</button>
+        <button id="btnSave" class="btn btn--save" type="button">
+          <span id="btnSaveText">✦ &nbsp; Save Provider</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="card fade-in" style="animation-delay: 0.3s">
+      <div class="card__title">
+        <span class="card__title-dot"></span>
+        Cấu hình hiện tại (settings.json)
+      </div>
+
+      <div id="configPreview" class="config-preview">Đang tải...</div>
+    </section>
+
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="index.js"></script>
+</body>
+</html>
